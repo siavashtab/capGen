@@ -7,7 +7,7 @@
 
 -----------
 
-This code generate stochastic instances from the famous deterministic capacitated facility location instances of OR-library [1]. the method that is used for generate random variables is similar to [2]. In this code the files will be generated with the SMPS format which is the main format for the represetation of stochastic programs.
+This code generate stochastic instances from the famous deterministic capacitated facility location instances of OR-library [1]. The method that is used for generate random variables is similar to [2]. In this code the instance is generated in the SMPS format which is the main format for represetation of stochastic programs.
 
 -------
 ## References:
