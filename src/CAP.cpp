@@ -61,12 +61,22 @@ void CAP::read_data(string instance)
 		for (int j = 0; j < data.ORIG; j++)
 			file >> data.cost[j][i];
 	}
+	double max_dem = 0;
+	double tot_cap = 0;
 	for (int i = 0; i < data.DEST; i++) {
 		srand(i);
 		data.sigma[i] = 0.1*data.demand[i] + rand()%1 * 0.2 * data.demand[i];
 		printf("\nsigma %d: %0.4f", i, data.sigma[i]);
+		max_dem += data.demand[i] + 3 * data.sigma[i];
 	}
-
+	for (int i = 0; i < data.ORIG; i++) {
+		srand(i+ data.DEST);
+		float dev = rand()%10 * 0.2 * data.capacity[i];
+		data.capacity[i] = 0.5*data.capacity[i] + dev;
+		printf("\ncapacity %d: %0.4f", i, data.capacity[i]);
+		tot_cap += data.capacity[i];
+	}
+	printf("\ntotal capacity: %0.4f - maximum demand: %0.4f", tot_cap, max_dem);
 	cout << "*************************** Data have beed read ***************************" << endl;
 
 }
@@ -368,11 +378,20 @@ void CAP::Create_Prob(string instance)
 {
 	string type = ".mps";
 	string dirr = ".\\models\\CAP\\";
-	string name = dirr + instance + type;
+	string name = dirr + instance + ".mps";
+	string name2 = dirr + instance + ".lp";
 	
 	CAP_prob.env = solver.env;
 	CAP_prob.name = "CAP";
 	CAP_prob.model_name = name;
+	CAP_prob.id = "CAP";
+	CAP_prob.type = 2;
+	solver.open_prob(CAP_prob);
+	MakeRawProb();
+	solver.Create_Prob(CAP_prob);
+	CAP_prob.env = solver.env;
+	CAP_prob.name = "CAP";
+	CAP_prob.model_name = name2;
 	CAP_prob.id = "CAP";
 	CAP_prob.type = 2;
 	solver.open_prob(CAP_prob);
