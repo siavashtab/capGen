@@ -37,6 +37,15 @@ void CAP::read_data(string instance)
 
 	ifstream file(filename);
 
+	size_t i = 0;
+	for (; i < instance.length(); i++) { if (isdigit(instance[i])) break; }
+
+	// remove the first chars, which aren't digits
+	instance = instance.substr(i, instance.length() - i);
+
+	// convert the remaining text to an integer
+	int id = atoi(instance.c_str());
+
 	file >> data.ORIG >> data.DEST;
 	data.demand.resize(data.DEST);
 	data.sigma.resize(data.DEST);
@@ -64,15 +73,16 @@ void CAP::read_data(string instance)
 	double max_dem = 0;
 	double tot_cap = 0;
 	for (int i = 0; i < data.DEST; i++) {
-		srand(i);
+		srand(i + id*1000);
 		data.sigma[i] = 0.1*data.demand[i] + rand()%1 * 0.2 * data.demand[i];
 		printf("\nsigma %d: %0.4f", i, data.sigma[i]);
 		max_dem += data.demand[i] + 3 * data.sigma[i];
 	}
 	for (int i = 0; i < data.ORIG; i++) {
-		srand(i+ data.DEST);
-		float dev = rand()%10 * 0.2 * data.capacity[i];
-		data.capacity[i] = 0.5*data.capacity[i] + dev;
+		srand(i+ data.DEST + id*1000);
+		float center = max_dem / (data.ORIG / 2);
+		float dev = rand()%10 * 0.05 * center;
+		data.capacity[i] = 0.5*center + dev;
 		printf("\ncapacity %d: %0.4f", i, data.capacity[i]);
 		tot_cap += data.capacity[i];
 	}
@@ -378,8 +388,8 @@ void CAP::Create_Prob(string instance)
 {
 	string type = ".mps";
 	string dirr = ".\\models\\CAP\\";
-	string name = dirr + instance + ".mps";
-	string name2 = dirr + instance + ".lp";
+	string name = dirr + instance + ".lp";
+	string name2 = dirr + instance + ".mps";
 	
 	CAP_prob.env = solver.env;
 	CAP_prob.name = "CAP";
@@ -387,7 +397,7 @@ void CAP::Create_Prob(string instance)
 	CAP_prob.id = "CAP";
 	CAP_prob.type = 2;
 	solver.open_prob(CAP_prob);
-	MakeRawProb();
+	MakeRawProb();		  
 	solver.Create_Prob(CAP_prob);
 	CAP_prob.env = solver.env;
 	CAP_prob.name = "CAP";
@@ -396,7 +406,9 @@ void CAP::Create_Prob(string instance)
 	CAP_prob.type = 2;
 	solver.open_prob(CAP_prob);
 	MakeRawProb();
-	solver.Create_Prob(CAP_prob);
+	solver.Create_Prob(CAP_prob);				  
+
+
 
 	cout << "*************************** Prob have beed created ***************************" << endl;
 
